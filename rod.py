@@ -3,20 +3,40 @@ class Rod:
     Class to handle all movements of the rod
     """
 
-    def __init__(self):
-        self.center_position = [1, 2]  # The rod always starts in the top left corner and considering the walls
-        self.horizontal = True
-        self.movements_dict = {"up": [-1, 0],
-                               "down": [1, 0],
-                               "left": [0, -1],
-                               "right": [0, 1]}
+    def __init__(self, center_position=[1, 2], horizontal=True):
+        self.center_position = center_position  # List with the position of the central block of the rod
+        self.horizontal = horizontal  # Bool indicating the rod direction
+        self.state = self.center_position + [self.horizontal]  # State of the rod in the network
 
-    def rotate(self):
+        # Dictionary to implement changes in state
+        self.state_changes_dict = {"up": [-1, 0, False],
+                                   "down": [+1, 0, False],
+                                   "left": [0, -1, False],
+                                   "right": [0, +1, False],
+                                   "rotate": [0, 0, True]}
+
+    def get_all_positions(self):
+        """
+        Function to get the position of each block. Might be useful for debugging
+        """
         if self.horizontal:
-            self.horizontal = False
-        else:
-            self.horizontal = True
+            sideA_position = self.center_position.copy()
+            sideA_position[1] -= 1
 
-    def move(self, key):
-        self.center_position[0] += self.movements_dict[key][0]
-        self.center_position[1] += self.movements_dict[key][1]
+            sideB_position = self.center_position.copy()
+            sideB_position[1] += 1
+        else:
+            sideA_position = self.center_position.copy()
+            sideA_position[0] -= 1
+
+            sideB_position = self.center_position.copy()
+            sideB_position[0] += 1
+        return [sideA_position, self.center_position, sideB_position]
+
+    def change_state(self, state_change_key):
+        change = self.state_changes_dict[state_change_key]
+        self.center_position[0] = self.center_position[0]+change[0]
+        self.center_position[1] = self.center_position[1]+change[1]
+        if change[2]:
+            self.horizontal = not self.horizontal
+        self.state = self.center_position + [self.horizontal]
