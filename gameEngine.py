@@ -8,12 +8,20 @@ class GameEngine:
     Class to handle all functionalities of the labyrinth gameArea
     """
 
-    def __init__(self, gameArea):
-        self.labyrinth = Labyrinth(gameArea)
+    def __init__(self, game_area: List, verbose = False):
+        """
+           :param List game_area: List that contains the labyrinth
+           :param Bool verbose: Flag to produce output more information on the computations
+        """
+        self.labyrinth = Labyrinth(game_area)
         self.rod = Rod()
         self.starting_state = self.rod.center_position + [self.rod.horizontal]
+        self.verbose = verbose
 
     def solve_game(self):
+        """
+        Function to solve the game problem
+        """
         self.labyrinth.show_game_area_with_rod(self.rod)
         path_list = []
         for end_state in self.labyrinth.end_states:
@@ -23,15 +31,20 @@ class GameEngine:
             print("Maze without a solution!")
             return -1
         else:
-            min_path = 99999
+            path_len = []
             for path in path_list:
-                if len(path) - 1 < min_path:
-                    min_path = len(path) - 1
+                path_len.append(len(path) - 1)
+            min_path = min(path_len)
             print("Maze solved. Minimum number of transformations is: {}".format(min_path))
+            return min_path
 
     def astar(self, start_state: List, end_state: List):
-        """Returns a list of tuples as a path from the given start to the given end in the given maze"""
-        # state_counter = 0
+        """
+        Implementatino of the A* algorithm. Returns a list as a path from the given start_state to the given end_state.
+        """
+        # State counter for verbose output
+        state_counter = 0
+
         # Create start and end node
         start_node = Node(parent=None, state=start_state, rod=self.rod)
         start_node.g = start_node.h = start_node.f = 0
@@ -71,25 +84,27 @@ class GameEngine:
 
             # Generate children
             children = []
-            for new_position in current_node.rod.state_changes_dict.keys():  # Adjacent states
-                # Creating a new rod and applying the new position proposal
+            for new_position in current_node.rod.state_changes_dict.keys():  # Using the dictionary with all transformations
+                # Creating a new rod using the current-node's rod and applying the new position transformation
                 children_rod = copy.deepcopy(current_node.rod)
+
+                # Creating new state using the dictionary keyword
                 children_rod.change_state(new_position)
 
-                # Get node state
-                node_state = children_rod.state
-
-                # Make sure is a valid transformation
+                # Make sure is a valid transformation before continuing
                 if not self.labyrinth.check_valid_position(children_rod):
                     continue
-                # state_counter += 1
-                # print('Showing rod iteration {} with transformation: {}'.format(state_counter, new_position))
-                # self.labyrinth.show_game_area_with_rod(children_rod)
 
-                # Create new node
-                new_node = Node(parent=current_node, state=node_state, rod=children_rod)
+                # Print game area with rod in case of verbose
+                state_counter += 1
+                if self.verbose:
+                    print('Showing node iteration {} with transformation: {}'.format(state_counter, new_position))
+                    self.labyrinth.show_game_area_with_rod(children_rod)
 
-                # Append
+                # Create new node using the confirmed rod
+                new_node = Node(parent=current_node, state=children_rod.state, rod=children_rod)
+
+                # Append children
                 children.append(new_node)
 
             # Loop through children
@@ -101,7 +116,7 @@ class GameEngine:
                 else:
                     # Create the f, g, and h values
                     child.g = current_node.g + 1
-                    # H: Manhattan distance to end point
+                    # H: Manhattan distances to end point
                     child.h = abs(child.state[0] - end_node.state[0]) + abs(
                         child.state[1] - end_node.state[1])
                     child.f = child.g + child.h
