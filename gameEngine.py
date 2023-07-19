@@ -8,7 +8,7 @@ class GameEngine:
     Class to handle all functionalities of the labyrinth gameArea
     """
 
-    def __init__(self, game_area: List, verbose = False):
+    def __init__(self, game_area: List, verbose=False):
         """
            :param List game_area: List that contains the labyrinth
            :param Bool verbose: Flag to produce output more information on the computations
@@ -40,7 +40,7 @@ class GameEngine:
 
     def astar(self, start_state: List, end_state: List):
         """
-        Implementatino of the A* algorithm. Returns a list as a path from the given start_state to the given end_state.
+        Implementation of the A* algorithm. Returns a list as a path from the given start_state to the given end_state.
         """
         # State counter for verbose output
         state_counter = 0

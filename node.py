@@ -1,7 +1,3 @@
-import copy
-from rod import *
-
-
 class Node:
     """
     A node class for A* Pathfinding including a rod instance
