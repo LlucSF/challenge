@@ -1,14 +1,14 @@
 class Rod:
     """
-    Class to handle all movements of the rod
+    Class to handle all movements and proprieties of the rod
     """
 
     def __init__(self, center_position=[1, 2], horizontal=True):
-        self.center_position = center_position  # List with the position of the central block of the rod
-        self.horizontal = horizontal  # Bool indicating the rod direction
-        self.state = self.center_position + [self.horizontal]  # State of the rod in the network
+        self.center_position = center_position  # List with the position of the central block of the rod (always [1, 2] with walls)
+        self.horizontal = horizontal  # Bool indicating the rod direction. True -> horizontal
+        self.state = self.center_position + [self.horizontal]  # State of the rod used in the A* network
 
-        # Dictionary to implement changes in state
+        # Dictionary to easily implement changes in state
         self.state_changes_dict = {"up": [-1, 0, False],
                                    "down": [+1, 0, False],
                                    "left": [0, -1, False],
@@ -17,7 +17,7 @@ class Rod:
 
     def get_all_positions(self):
         """
-        Function to get the position of each block. Might be useful for debugging
+        Function to get the position of each block.
         """
         if self.horizontal:
             sideA_position = self.center_position.copy()
@@ -34,6 +34,9 @@ class Rod:
         return [sideA_position, self.center_position, sideB_position]
 
     def change_state(self, state_change_key):
+        """
+        Function to implement a state change using the dictionary of state changes.
+        """
         change = self.state_changes_dict[state_change_key]
         self.center_position[0] = self.center_position[0]+change[0]
         self.center_position[1] = self.center_position[1]+change[1]
